@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "configlayer"
+version = "0.1"
+authors = [
+  { name="Timoshenko Maxim", email="cooold.tm@gmail.com" }
+]
+description = "Package for simplified work with configurations (as dataclass), manage their profiles, and export/import possibilities"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/c0oo1d/configlayer"
+"Bug Tracker" = "https://github.com/c0oo1d/configlayer/issues"

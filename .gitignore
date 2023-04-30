@@ -1,0 +1,14 @@
+# PyCharm project
+.idea
+
+# Cache
+.mypy_cache
+.pytest_cache
+__pycache__
+
+# Build
+configlayer.egg-info
+dist
+
+# Tests generated temp file
+/tests/_file_data/temp_config.ini
