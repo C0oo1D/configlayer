@@ -99,6 +99,10 @@ jobs:
           python3 -m pip install pytest pytest-html genbadge[tests]
       - name: Make reports and temp directories
         run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
+      - name: MacOS hook
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd /Users/runner/work/configlayer/configlayer
       - name: Test with pytest
         continue-on-error: true
         run: |
