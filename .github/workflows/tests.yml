@@ -109,7 +109,7 @@ jobs:
           python3 -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/${{ runner.os }}_${{ matrix.python-version }}.html
       - name: Generate badge
         run: |
-          genbadge tests -i temp/junit.xml -o reports/pytest_${{ runner.os }}_${{ matrix.python-version }}.svg
+          genbadge tests -i temp/pytest.xml -o reports/pytest_${{ runner.os }}_${{ matrix.python-version }}.svg
       - name: Save Python ${{ matrix.python-version }} at ${{ runner.os }} report
         uses: actions/upload-artifact@v3
         with:
