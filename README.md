@@ -2,11 +2,21 @@
 
 ----
 
-![PyPI](https://img.shields.io/pypi/v/configlayer)
+[![PyPI](https://img.shields.io/pypi/v/configlayer)](https://pypi.org/project/configlayer/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/configlayer)
+![GitHub License](https://img.shields.io/github/license/C0oo1D/configlayer)
+![GitHub Build](https://github.com/C0oo1D/configlayer/actions/workflows/build_and_test.yml/badge.svg)
+[![Coverage](https://C0oo1D.github.io/configlayer/reports/coverage.svg)](https://C0oo1D.github.io/configlayer/reports/coverage/html/index.html)
+[![Flake8](https://C0oo1D.github.io/configlayer/reports/flake8.svg)](https://C0oo1D.github.io/configlayer/reports/flake8/index.html)
+![mypy](https://C0oo1D.github.io/configlayer/reports/mypy.svg)
+[![mypy-imprecise](https://C0oo1D.github.io/configlayer/reports/mypy-imp.svg)](https://C0oo1D.github.io/configlayer/reports/mypy/index.html)
+
+| Python |                                                                        Linux                                                                         |                                                                         Windows                                                                          |                                                                        MacOS                                                                         |
+|:------:|:----------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------:|
+|  3.10  | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Linux_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Linux_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Windows_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Windows_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_MacOS_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/MacOS_3.10.html) |
+|  3.11  | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Linux_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Linux_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Windows_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Windows_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_MacOS_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/MacOS_3.11.html) |
 
 ### Features
-
 Initially positioned as a convenient bridge between `dataclass` and `ConfigParser`,  
 but later was split into optional modules and added extra functionality:
 - **Profiles** module (cfg.profiles) - a lot of functions for config profiles manipulation:
@@ -40,13 +50,32 @@ but later was split into optional modules and added extra functionality:
 
 ### Installing
 
+Recommended way (without '--user' - elevated privileges needed, if a system interpreter is used)
+
 ```sh
-pip install configlayer
+pip install --user configlayer
 ```
 
 ----
 
-### Examples
+### Minimal usage example
+
+```python
+from configlayer import ConfigBase
+
+
+class Config(ConfigBase):
+    param: str = 'Some str'
+
+
+data = Config('cfg.ini')  # Load from file if exists, else check save file possibility 
+data.param = 'Another str'
+data.cfg.file.save()
+```
+
+----
+
+### Other examples
 
 #### Common part
 
@@ -85,7 +114,6 @@ data.cfg.file.save()
 #### Profiles config file
 
 ```python
-
 # Init config with profiles support (file has additional internal section)
 data = Config('config profiles.ini', profiles=True)
 profiles = data.cfg.profiles

@@ -1,14 +1,11 @@
 from gc import collect
-from pathlib import Path
 from itertools import product
+from pathlib import Path
 
 from configlayer.exceptions import InitError, FileError, IOImportError, InputError
 
 from _utilities import raises_init, subtest
-from _data import Config1, Config1Alias, Config2, Config3, Config4, exp_strict
-
-
-TEMP_PATH = Path('_file_data\\temp_config.ini')
+from _data import TEMP_PATH, Config1, Config1Alias, Config2, Config3, Config4, exp_strict
 
 
 def test_init():
@@ -16,7 +13,7 @@ def test_init():
 
     # Create config with wrong file path
     wrong_path = 'not_exists_dir/test_config.ini'
-    fe = FileError("Save to \"not_exists_dir\\test_config.ini\" failed. No such file or directory")
+    fe = FileError(f'Save to "{Path(wrong_path)}" failed. No such file or directory')
     raises_init(fe, Config2, wrong_path)
 
     # Create config, must be no file created
@@ -25,7 +22,7 @@ def test_init():
     assert not TEMP_PATH.exists()
 
     # Several configs at single file check
-    ie = InitError("Path \"_file_data\\temp_config.ini\" is already used in 'Config1' config")
+    ie = InitError(f"Path \"{TEMP_PATH}\" is already used in 'Config1' config")
     raises_init(ie, Config1, TEMP_PATH)
     raises_init(ie, Config2, TEMP_PATH)
 
@@ -37,7 +34,7 @@ def test_init():
     # Import file at temp path from other config
     ke = KeyError('Valid fields')
     ie = IOImportError(f"Cannot import 'Valid fields' config. {ke!r}")
-    fe = FileError(f"Load from \"_file_data\\temp_config.ini\" failed. {ie!r}")
+    fe = FileError(f"Load from \"{TEMP_PATH}\" failed. {ie!r}")
     raises_init((fe, ie, ke), Config2, TEMP_PATH)
 
 
@@ -48,7 +45,8 @@ def test_save():
     defaults = {'v_str': "'mod'"}
     def_data = {'v_bool': 'True', 'v_str': "'Some string'"}
     for (profiles, ud), bd, bv in product([(False, True), (True, True), (True, False)],
-                                                    [False, True], [False, True]):
+                                          [False, True],
+                                          [False, True]):
         TEMP_PATH.unlink(missing_ok=True)
         data = Config1(TEMP_PATH, profiles=bool(profiles))
         if profiles:
@@ -109,7 +107,7 @@ def test_load():
     raises_init(fmt_exc(wpp, dsv), Config1, wpp, profiles=True)
 
     def fmt_ie(cls, provided=False):
-        args =  ('', ' not') if provided else (' not', '')
+        args = ('', ' not') if provided else (' not', '')
         return InputError('raw_config', func_name=f'{cls.__name__}.cfg.io.import_config()',
                           msg="'_CONFIG_LAYER' section is{} needed, but{} provided".format(*args))
 

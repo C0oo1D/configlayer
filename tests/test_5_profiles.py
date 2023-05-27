@@ -185,7 +185,7 @@ def test_set():
     empty_v = ((), (None,), ((),), ({},))
     err_p_v = (((1, 2, 3),), ({'v_int': '6'},))
     err_f_v = ((tuple(range(13)),), (dict(zip(def_d, range(13))),))
-    error_v = err_p_v + err_f_v
+    error_v = (*err_p_v, *err_f_v)
     extra_v = (((*def_t, None),), ({'v_cust4': None},))
     valid_v = (((True,),), ({'v_str': 'good'},))
 
@@ -479,7 +479,7 @@ def test_switch():
            "Available: ('name1', 'name2', 'name3', 'name4', 'name5')")
     raises(InputError(msg=msg), d1g1.cfg.profiles.switch, n6)
 
-    msg = ("Some profiles in group 'First' failed switch to 'name6':\n"
+    msg = ("Some profiles in group 'First' failed switch to 'name6':\n"  # noqa
            f"\tConfig1: InputError(\"Provided wrong parameter to Config1.cfg.profiles.switch():"
            f" name. 'name6' profile in 'Config1' config is not exists. "
            "Available: ('name1', 'name2', 'name3', 'name4', 'name5')\")\n"

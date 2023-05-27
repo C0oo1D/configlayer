@@ -1,0 +1,29 @@
+name: Python package build, publish on PyPi
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_publish:
+    name: Build package and publish on PyPi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout all
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+      - name: Build package
+        run: |
+          python3 -m pip install --upgrade build
+          python3 -m build
+      - name: Publish on PyPi
+        run: |
+          python3 -m pip install --upgrade twine
+          python3 -m twine upload --repository pypi dist/*

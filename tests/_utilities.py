@@ -19,7 +19,7 @@ def raises(exceptions: mb_holder_t[Exception | type[Exception]], func, /, *args,
 
     # Prepare expected and received exception descriptors with ignoring args if not checking it
     # bug mypy: Exception instances has args attribute. And there is Exception, not object
-    expected_list = [(exc, None) if isinstance(exc, type) else (type(exc), exc.args)                # type: ignore[attr-defined]
+    expected_list = [(exc, None) if isinstance(exc, type) else (type(exc), exc.args)               # type: ignore[attr-defined]
                      for exc in as_holder(exceptions)]
     received_list = []
     if exception:
@@ -49,7 +49,7 @@ def raises(exceptions: mb_holder_t[Exception | type[Exception]], func, /, *args,
                 if name == 'exceptions':
                     expected = None if expected is None else expected.__name__
                     # bug mypy: Did not understand from where it comes..
-                    received = None if received is None else received.__name__                      # type: ignore[assignment, union-attr]
+                    received = None if received is None else received.__name__           # type: ignore[assignment, union-attr]
                 errors.append(f'[Level {i}] Incorrect {name}: {expected=}, {received=}')
     errors = [f'\t\t{i}. {error}' for i, error in enumerate(errors, 1)]
 
@@ -135,7 +135,6 @@ if __name__ == '__main__':
                 raise KeyError('2nd level exception', '2nd arg', '3rd arg') from e
         except Exception as e:
             raise ValueError() from e
-
 
     raises(AssertionError, raises, TypeError, str, '123')
     text = "No exception! (result = '123', func = <class 'str'>, args = ('123',), kwargs = {})"

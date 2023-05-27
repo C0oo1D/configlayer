@@ -1,0 +1,135 @@
+name: Python package tests
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [master]
+    paths: ['configlayer/**', 'pyproject.toml']
+
+  pull_request:
+    branches: [master]
+    paths: ['configlayer/**', 'pyproject.toml']
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+
+  checks:
+    name: Check package lint, test and coverage using Python 3.10 at Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e .
+          python3 -m pip install flake8 mypy[reports] pytest pytest-html coverage genbadge[all]
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Make reports and temp directories
+        run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=20 --max-line-length=127 --statistics --format=html --htmldir reports/flake8 --tee --output-file temp/flake8stats.txt
+      - name: Lint with mypy and capture mypy imprecise coverage
+        run: |
+          mypy . > temp/mypy.log
+          mypy configlayer --txt-report temp/mypy --html-report reports/mypy
+      - name: Test with pytest and capture code coverage
+        run: |
+          coverage run -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/Linux_3.10.html
+          coverage xml
+          coverage html
+      - name: Generate badges
+        run: |
+          genbadge flake8 -i temp/flake8stats.txt -o reports/flake8.svg
+          python3 .github/scripts/mypy-genbadge.py
+          genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg -n pytest
+          genbadge coverage -i temp/coverage.xml -o reports/coverage.svg
+      - name: Save reports and last README.md file
+        uses: actions/upload-artifact@v3
+        with:
+          path: [ reports, README.md ]
+
+  tests:
+    name: Test using Python ${{ matrix.python-version }} at ${{ runner.os }}
+    needs: checks
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11"]
+      exclude:
+        os: ubuntu-latest
+        python-version: "3.10"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e .
+          python3 -m pip install pytest pytest-html genbadge[tests]
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Make reports and temp directories
+        run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
+      - name: Test with pytest
+        run: |
+          python3 run -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/${{ runner.os }}_${{ matrix.python-version }}.html
+      - name: Generate badge
+        run: |
+          genbadge tests -i temp/junit.xml -o reports/pytest_${{ runner.os }}_${{ matrix.python-version }}.svg
+      - name: Save Python ${{ matrix.python-version }} at ${{ runner.os }} report
+        uses: actions/upload-artifact@v3
+        with:
+          path: reports
+
+  deploy:
+    name: Deploy reports and readme file to GitHub Pages
+    needs: [ checks, tests ]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Load reports
+        uses: actions/download-artifact@master
+        with:
+          path: [ reports, README.md ]
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: [ reports, README.md ]
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

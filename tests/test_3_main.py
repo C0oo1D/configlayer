@@ -51,7 +51,7 @@ def test_config_init():
     msg = "Field 'str' type 'text' (str) - is not a type, and is equal to a value. "
     msg_shadow = "If shadowing - regular scoping rules applied (cpython issue #98876)"
     raises_init(InputError(msg=msg + msg_shadow), WrongType1)
-    raises_init(InputError(msg="Field 'str' type 'attr' (str) - is not a type"), WrongType2)
+    raises_init(InputError(msg="Field 'str' type 'str' (str) - is not a type"), WrongType2)
     raises_init(InputError(msg="Field 'some'=b'1' (bytes) must be int type"), WrongType3)
     raises_init(InputError(msg="Field 'test'=b'1' (bytes) must be int type"), WrongType4)
     raises_init_lang_config(InputError(msg="Field 'wrong_attr'=1 (int) must be str type"),

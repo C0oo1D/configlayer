@@ -17,7 +17,7 @@ from configlayer.utils import (
     UID, Locker)                                                                    # Uncategorized
 
 from _utilities import raises, subtest
-from _data import increment_str, wrong_func, wrong_func_3, WrongCast
+from _data import empty_func, increment_str, wrong_func, wrong_func_3, WrongCast
 
 
 # Bool checks
@@ -308,7 +308,7 @@ def test_fmt_exc():
 
     # Check input error exception
     st = subtest('Input exception', 864, product(input_exc_set, *def_set),
-                  {'Message - args[0]': 144})
+                 {'Message - args[0]': 144})
     for i, input_exc, msg, exc, args, kwargs in st:
         recv_exc = fmt_exc(input_exc, msg, exc, *args, **kwargs)
 
@@ -908,7 +908,7 @@ def test_check_types():
 # Decorators
 
 
-def test_decorate_methods():
+def test_decorate_methods():    # noqa C901
     class Fixed(str):
         attr = 1
         def visible(self): pass
@@ -1068,7 +1068,7 @@ def test_set_slots_defaults():
     class Deco:
         f1 = 1
         f2 = '2'
-        f3 = lambda x: x
+        f3 = empty_func
     assert Deco() == deco()() == deco('f1')() == deco(('f1', 'f2'), lambda k, v: False)()
 
     # Decorator repr validity
@@ -1290,7 +1290,7 @@ def test_get_attrs():
                 assert get_attrs(func, **kwargs) == result
 
 
-def test_get_name():
+def test_get_name():    # noqa C901
     test_funcs = (GetName, partial(GetName, full=True))
 
     # Check wrong input
@@ -1305,7 +1305,8 @@ def test_get_name():
         ({'attrs': []}, {"msg": "[] (list) must be bool or tuple types"}),
         ({'attrs_obj': []}, {"msg": "[] (list) must be bool or tuple types"}),
         ({'order': order}, {"msg": f"Not exists methods: 'some_obj', 'not_exists'. {details}"}),
-        ({}.fromkeys(wrong_names), {"msg": possible_parameters})]:
+        ({}.fromkeys(wrong_names), {"msg": possible_parameters})
+    ]:
         for func in test_funcs:
             raises(InputError(*kwargs, **exc_kwargs, func_name='GetName()'), func, '', **kwargs)
 
@@ -1459,7 +1460,7 @@ def test_get_name():
                                 msg = f'{sig}{p} == {received!r} || must be: {must_be!r}{add}'
                                 errors.append(msg)
     if errors:
-        raise ValueError('\n\t'.join((f'Test failed, errors:', *errors)))
+        raise ValueError('\n\t'.join(('Test failed, errors:', *errors)))
 
 
 # Uncategorized
@@ -1476,7 +1477,7 @@ def test_uid():
     assert id1 != id2
 
 
-def test_locker():
+def test_locker():  # noqa C901
     class All(Locker):
         def __init__(self):
             self.a = 1

@@ -1,7 +1,15 @@
 """Data for tests"""
 from ast import literal_eval
+from pathlib import Path
 
 from configlayer import Field, ConfigBase, LanguageBase
+
+
+TEMP_PATH = Path('tests/_file_data/temp_config.ini')
+
+
+def empty_func(x):
+    return x
 
 
 class OwnInt(int):
@@ -109,7 +117,7 @@ class WrongType1(ConfigBase):
 
 
 class WrongType2(ConfigBase):
-    str: 'attr' = 'text'                                                             # type: ignore
+    str: 'str' = 'text'
 
 
 class WrongType3(ConfigBase):
@@ -126,7 +134,7 @@ class WrongCast:
 
 
 def wrong_func(data):    # noqa
-    raise TypeError(f'Wrong func!')
+    raise TypeError('Wrong func!')
 
 
 def wrong_func_2(*args):

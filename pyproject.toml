@@ -12,7 +12,11 @@ description = "Package for simplified work with configurations (as dataclass), m
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
-    "Programming Language :: Python :: 3.10",
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -20,3 +24,14 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/c0oo1d/configlayer"
 "Bug Tracker" = "https://github.com/c0oo1d/configlayer/issues"
+
+[tool.coverage.run]
+branch = true
+data_file = 'temp/.coverage'
+source = ['configlayer']
+
+[tool.coverage.xml]
+output = 'temp/coverage.xml'
+
+[tool.coverage.html]
+directory = 'reports/coverage/html'

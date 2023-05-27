@@ -1,5 +1,4 @@
 from typing import Iterable
-from pathlib import Path
 from functools import partial
 from itertools import product
 
@@ -7,7 +6,7 @@ from configlayer import Field, Options
 from configlayer.exceptions import CheckTypeError, OptionsCheckError, FieldError, InputError
 
 from _utilities import raises, init
-from _data import (Config1, Config2, Config3, Config4, Lang1,
+from _data import (TEMP_PATH, Config1, Config2, Config3, Config4, Lang1,
                    wrong_func, wrong_func_2, wrong_func_3, exp_strict, imp_strict)
 
 
@@ -19,12 +18,11 @@ def raises_init_lang(exceptions: Exception | Iterable[Exception], func, *args, *
 
 def test_init():
     cust_opt = Options(revert_fails=True)
-    path = '_file_data\\temp_config.ini'
-    Path(path).unlink(missing_ok=True)
+    TEMP_PATH.unlink(missing_ok=True)
     for data, field_keys, name, type_name, def_sect, opt, profiles, io, file in [
         (Config3(default_section='x', options=cust_opt), (*exp_strict, 'c2', 'c3'),
          'Gotcha', 'config', 'x', cust_opt, False, False, False),
-        (Lang1(path, profiles=True), ('some1', 'some2', 'another_one'),
+        (Lang1(TEMP_PATH, profiles=True), ('some1', 'some2', 'another_one'),
          'Random', 'language', 'DEFAULT', Options(), True, True, True)
     ]:
         cfg = data.cfg

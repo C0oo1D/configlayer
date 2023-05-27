@@ -410,8 +410,8 @@ def test_import_section():
 
     # i1_, i1m = {'v_bool': 'False'}, {'v_bool': 'True'}
     # o1_, o1m = {'v_bool': False}, {'v_bool': True}
-    i2_, i2m = {'v_int': '65535'}, {'v_int': '32767'}
-    o2_, o2m = {'v_int': 65535}, {'v_int': 32767}
+    i2m = {'v_int': '32767'}
+    o2m = {'v_int': 32767}
 
     imp = imp_strict
     imp2 = imp.copy()
@@ -486,10 +486,9 @@ def test_import_config():
     kif = data_s.cfg.io._key_fields
 
     # Values
-    e1_, e1m = {'v_bool': 'False'}, {'v_bool': 'True'}
-    i1_, i1m = {'v_bool': False}, {'v_bool': True}
-    e2_, e2m = {'v_int': '65535'}, {'v_int': '32767'}
-    i2_, i2m = {'v_int': 65535}, {'v_int': 32767}
+    e1m, i1m = {'v_bool': 'True'}, {'v_bool': True}
+    e2_ = {'v_int': '65535'}
+    e2m, i2m = {'v_int': '32767'}, {'v_int': 32767}
 
     # Sections names
     internal = data_s.cfg.io._key_section
