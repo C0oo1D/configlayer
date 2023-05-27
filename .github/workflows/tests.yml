@@ -59,9 +59,6 @@ jobs:
           coverage html
       - name: Generate badges
         run: |
-          pwd
-          ls
-          ls */
           genbadge flake8 -i temp/flake8stats.txt -o reports/flake8.svg
           python3 .github/scripts/mypy-genbadge.py
           genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg -n pytest
@@ -100,7 +97,6 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -e .
           python3 -m pip install pytest pytest-html genbadge[tests]
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Make reports and temp directories
         run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
       - name: Test with pytest
