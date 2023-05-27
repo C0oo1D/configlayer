@@ -53,6 +53,8 @@ jobs:
         continue-on-error: true
         run: |
           coverage run -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/Linux_3.10.html
+      - name: Generate coverage result and report
+        run: |
           coverage xml
           coverage html
       - name: Generate badges
