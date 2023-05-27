@@ -57,6 +57,9 @@ jobs:
           coverage html
       - name: Generate badges
         run: |
+          pwd
+          ls
+          ls */
           genbadge flake8 -i temp/flake8stats.txt -o reports/flake8.svg
           python3 .github/scripts/mypy-genbadge.py
           genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg -n pytest
