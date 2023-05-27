@@ -106,7 +106,7 @@ jobs:
       - name: Test with pytest
         continue-on-error: true
         run: |
-          python3 run -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/${{ runner.os }}_${{ matrix.python-version }}.html
+          python3 -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/${{ runner.os }}_${{ matrix.python-version }}.html
       - name: Generate badge
         run: |
           genbadge tests -i temp/junit.xml -o reports/pytest_${{ runner.os }}_${{ matrix.python-version }}.svg
