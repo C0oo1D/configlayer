@@ -104,7 +104,7 @@ jobs:
           retention-days: 1
 
   deploy:
-    name: Deploy reports and readme file to GitHub Pages
+    name: Deploy reports to GitHub Pages
     needs: [ checks, tests ]
     permissions:
       pages: write
