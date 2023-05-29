@@ -5,16 +5,16 @@
 [![PyPI](https://img.shields.io/pypi/v/configlayer)](https://pypi.org/project/configlayer/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/configlayer)
 ![GitHub License](https://img.shields.io/github/license/C0oo1D/configlayer)
-![GitHub Build](https://github.com/C0oo1D/configlayer/actions/workflows/build_and_test.yml/badge.svg)
-[![Coverage](https://C0oo1D.github.io/configlayer/reports/coverage.svg)](https://C0oo1D.github.io/configlayer/reports/coverage/html/index.html)
-[![Flake8](https://C0oo1D.github.io/configlayer/reports/flake8.svg)](https://C0oo1D.github.io/configlayer/reports/flake8/index.html)
-![mypy](https://C0oo1D.github.io/configlayer/reports/mypy.svg)
-[![mypy-imprecise](https://C0oo1D.github.io/configlayer/reports/mypy-imp.svg)](https://C0oo1D.github.io/configlayer/reports/mypy/index.html)
+![GitHub Build](https://github.com/C0oo1D/configlayer/actions/workflows/tests.yml/badge.svg)
+[![Coverage](https://C0oo1D.github.io/configlayer/coverage.svg)](https://C0oo1D.github.io/configlayer/coverage/html/index.html)
+[![Flake8](https://C0oo1D.github.io/configlayer/flake8.svg)](https://C0oo1D.github.io/configlayer/flake8/index.html)
+![mypy](https://C0oo1D.github.io/configlayer/mypy.svg)
+[![mypy-imprecise](https://C0oo1D.github.io/configlayer/mypy-imp.svg)](https://C0oo1D.github.io/configlayer/mypy/index.html)
 
 | Python |                                                                        Linux                                                                         |                                                                         Windows                                                                          |                                                                        MacOS                                                                         |
 |:------:|:----------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------:|
-|  3.10  | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Linux_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Linux_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Windows_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Windows_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_MacOS_3.10.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/MacOS_3.10.html) |
-|  3.11  | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Linux_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Linux_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_Windows_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/Windows_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/reports/pytest_MacOS_3.11.svg)](https://C0oo1D.github.io/configlayer/reports/pytest/MacOS_3.11.html) |
+|  3.10  | [![pytest](https://C0oo1D.github.io/configlayer/pytest_Linux_3.10.svg)](https://C0oo1D.github.io/configlayer/pytest/Linux_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/pytest_Windows_3.10.svg)](https://C0oo1D.github.io/configlayer/pytest/Windows_3.10.html) | [![pytest](https://C0oo1D.github.io/configlayer/pytest_macOS_3.10.svg)](https://C0oo1D.github.io/configlayer/pytest/macOS_3.10.html) |
+|  3.11  | [![pytest](https://C0oo1D.github.io/configlayer/pytest_Linux_3.11.svg)](https://C0oo1D.github.io/configlayer/pytest/Linux_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/pytest_Windows_3.11.svg)](https://C0oo1D.github.io/configlayer/pytest/Windows_3.11.html) | [![pytest](https://C0oo1D.github.io/configlayer/pytest_macOS_3.11.svg)](https://C0oo1D.github.io/configlayer/pytest/macOS_3.11.html) |
 
 ### Features
 Initially positioned as a convenient bridge between `dataclass` and `ConfigParser`,  

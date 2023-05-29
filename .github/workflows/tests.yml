@@ -52,15 +52,13 @@ jobs:
         run: |
           genbadge flake8 -i temp/flake8stats.txt -o reports/flake8.svg
           python3 .github/scripts/mypy-genbadge.py
-          genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg -n pytest
+          genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg
           genbadge coverage -i temp/coverage.xml -o reports/coverage.svg
       - name: Save reports and last README.md file
         uses: actions/upload-artifact@v3
         with:
           name: reports
-          path: |
-            reports
-            README.md
+          path: reports
           retention-days: 1
 
   tests:
@@ -102,9 +100,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: reports
-          path: |
-            reports
-            README.md  # Exclude reports flattening
+          path: reports
           retention-days: 1
 
   deploy:
@@ -121,15 +117,12 @@ jobs:
     steps:
       - name: Load artifact from previous jobs
         uses: actions/download-artifact@v3
-        with:
-          name: reports
-          path: pages
       - name: Display current files structure in pages dir
         run: ls -R
       - name: Save as pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: pages
+          path: reports
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
