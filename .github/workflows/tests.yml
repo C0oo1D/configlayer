@@ -57,7 +57,7 @@ jobs:
       - name: Save reports and last README.md file
         uses: actions/upload-artifact@v3
         with:
-          name: github-pages
+          name: reports
           path: |
             reports
             README.md
@@ -101,7 +101,7 @@ jobs:
       - name: Save Python ${{ matrix.python-version }} at ${{ runner.os }} report
         uses: actions/upload-artifact@v3
         with:
-          name: github-pages
+          name: reports
           path: |
             reports
             README.md  # Exclude reports flattening
@@ -119,6 +119,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Load artifact from previous jobs
+        uses: actions/download-artifact@v3
+        with:
+          path: pages
+      - name: Display current files structure in pages dir
+        run: ls -R
+        working-directory: pages
+      - name: Save as pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
