@@ -7,19 +7,10 @@ on:
     branches: [master]
     paths: ['configlayer/**', 'tests/**', 'pyproject.toml']
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
 
   checks:
-    name: Check package lint, test and coverage using Python 3.10 at Linux
+    name: Check package lint, test and coverage using Python 3.10 at ubuntu-latest
     runs-on: ubuntu-latest
 
     steps:
@@ -70,6 +61,7 @@ jobs:
           path: |
             reports
             README.md
+          retention-days: 1
 
   tests:
     name: Test using Python ${{ matrix.python-version }} at ${{ matrix.os }}
@@ -99,10 +91,6 @@ jobs:
           python3 -m pip install pytest pytest-html genbadge[tests]
       - name: Make reports and temp directories
         run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
-      - name: MacOS hook
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd /Users/runner/work/configlayer/configlayer
       - name: Test with pytest
         continue-on-error: true
         run: |
@@ -114,28 +102,21 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: github-pages
-          path: |
-            reports
+          path: reports/**
+          retention-days: 1
 
   deploy:
     name: Deploy reports and readme file to GitHub Pages
     needs: [ checks, tests ]
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Load reports and README.MD from artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: github-pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
