@@ -1,0 +1,86 @@
+name: Python package release and publish
+
+on:
+  workflow_dispatch:
+
+  workflow_run:
+    workflows: ["Python package tests"]
+    types:
+      - completed
+
+jobs:
+  checks:
+    name: Check new version for release and publish
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs }}
+      release: ${{ steps.release.conclusion }}
+      publish: ${{ steps.publish.conclusion }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests packaging
+      - name: Get version
+        id: version
+        run: python .github/scripts/cmd get version >> $GITHUB_OUTPUT
+      - name: Check release
+        id: release
+        continue-on-error: true
+        run: python .github/scripts/cmd check release
+      - name: Check publish
+        id: publish
+        continue-on-error: true
+        run: python .github/scripts/cmd check publish
+
+  release:
+    name: Release package on GitHub (if new version available)
+    needs: checks
+    if: jobs.checks.outputs.release == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+      - name: Build package
+        run: python -m build
+      - name: Display release title (version)
+        run: echo ${{ jobs.checks.outputs.version }}
+      - name: Display release notes (commit message)
+        run: echo ${{ github.event.head_commit.message }}
+
+  publish:
+    name: Publish package on PyPi (if new version available)
+    needs: [ checks, release ]
+    if: jobs.checks.outputs.publish == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download ${{ jobs.checks.outputs.version }} release
+        run: gh release download ${{ jobs.checks.outputs.version }} -D ./dist/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show cwd
+        run: |
+          pwd
+          ls
+          ls */
