@@ -4,9 +4,8 @@
     check_publish (on PyPi) -> exit code"""
 from json import loads
 from typing import Callable
-from tomllib import load
+from tomli import load
 from argparse import ArgumentParser
-from functools import partial
 from subprocess import run
 from dataclasses import dataclass
 
@@ -26,7 +25,8 @@ class LatestRelease:
     version: Version
 
     def __init__(self):
-        if result := run("gh release list --limit 1", capture_output=True).stdout.decode().strip():
+        cmd = "gh release list --limit 1"
+        if result := run(cmd.split(), capture_output=True).stdout.decode().strip():
             result = result.split('\t')
         self.title, self.type, self.tag_name, self.published = result or ([''] * 4)
         self.version = parse(self.tag_name or 'v0.0.0')
