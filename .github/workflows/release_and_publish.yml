@@ -32,15 +32,15 @@ jobs:
           pip install requests packaging
       - name: Get version
         id: version
-        run: python .github/scripts/cmd.py get version >> $GITHUB_OUTPUT
+        run: python .github/scripts/cmd.py get_version >> $GITHUB_OUTPUT
       - name: Check release
         id: release
         continue-on-error: true
-        run: python .github/scripts/cmd.py check release
+        run: python .github/scripts/cmd.py check_release
       - name: Check publish
         id: publish
         continue-on-error: true
-        run: python .github/scripts/cmd.py check publish
+        run: python .github/scripts/cmd.py check_publish
 
   release:
     name: Release package on GitHub (if new version available)
