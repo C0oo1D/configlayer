@@ -13,7 +13,7 @@ jobs:
     name: Check new version for release and publish
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version.outputs }}
+      version: ${{ steps.version }}
       release: ${{ steps.release.conclusion }}
       publish: ${{ steps.publish.conclusion }}
 
@@ -32,15 +32,15 @@ jobs:
           pip install requests packaging
       - name: Get version
         id: version
-        run: python .github/scripts/cmd get version >> $GITHUB_OUTPUT
+        run: python .github/scripts/cmd.py get version >> $GITHUB_OUTPUT
       - name: Check release
         id: release
         continue-on-error: true
-        run: python .github/scripts/cmd check release
+        run: python .github/scripts/cmd.py check release
       - name: Check publish
         id: publish
         continue-on-error: true
-        run: python .github/scripts/cmd check publish
+        run: python .github/scripts/cmd.py check publish
 
   release:
     name: Release package on GitHub (if new version available)
