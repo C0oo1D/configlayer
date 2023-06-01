@@ -13,9 +13,9 @@ jobs:
     name: Check new version for release and publish
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version.output }}
-      release: ${{ steps.release.conclusion }}
-      publish: ${{ steps.publish.conclusion }}
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.release.outcome }}
+      publish: ${{ steps.publish.outcome }}
 
     steps:
       - name: Checkout
@@ -32,9 +32,7 @@ jobs:
           pip install requests packaging tomli
       - name: Get version
         id: version
-        run: |
-          output=$(python .github/scripts/cmd.py get_version)
-          echo "output=$output" >> $GITHUB_OUTPUT
+        run: echo "version=$(python .github/scripts/cmd.py get_version)" >> $GITHUB_OUTPUT
       - name: Check release
         id: release
         continue-on-error: true
@@ -69,6 +67,14 @@ jobs:
         run: echo ${{ needs.checks.outputs.version }}
       - name: Display release notes (commit message)
         run: echo ${{ github.event.head_commit.message }}
+      - name: Display release outcome value
+        run: echo ${{ needs.checks.outputs.release }}
+      - name: Display publish outcome value
+        run: echo ${{ needs.checks.outputs.publish }}
+      - name: Download ${{ needs.checks.outputs.version }} release
+        run: gh release download ${{ needs.checks.outputs.version }} -D ./dist/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     name: Publish package on PyPi (if new version available)
