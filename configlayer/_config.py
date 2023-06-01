@@ -163,12 +163,12 @@ class ConfigSupport(Locker):
     def _set_fields(self, fields: fields_t):
         data = self._data
         # bug mypy: return value is not used
-        [setattr(data, k, v) for k, v in fields.items()]                                            # type: ignore[func-returns-value]
+        [setattr(data, k, v) for k, v in fields.items()]                                     # type: ignore[func-returns-value]
 
     def _set_defaults(self, fields: fields_t):
         _fields = self._fields
         # bug mypy: return value is not used
-        [setattr(_fields[k], 'default', v) for k, v in fields.items()]                              # type: ignore[func-returns-value]
+        [setattr(_fields[k], 'default', v) for k, v in fields.items()]                       # type: ignore[func-returns-value]
 
     def set_fields(self, fields: fields_t, typecheck=True, typecast=False):
         """Set current fields by dict with type check and cast possibility

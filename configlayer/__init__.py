@@ -2,6 +2,7 @@
     todo: Remove check_type(s) 'obj_t_check' (annotation provided, himself an evil Pinocchio)
     todo: Rework profiles.active_fields to profiles dict with active fields (and it's set method)
     todo: Add 'name' param to io.import_section (import single section to config possibility)
+    todo: Reduce complexity (Flake8 C901 error disabled by changing max-complexity from 10 to 20)
 
     note: Think about pydantic: seems checks can be delegated, and added more possibilities
     note: Think about fast is_holder - check only __iter__, without __getitem__ iter detection
@@ -20,9 +21,9 @@ from ._file import File
 
 from .types import path_t, Field
 from .utils import (init_reraise, get_attrs, check_type, check_items, check_types, safe, GetName,
-                    split, is_dunder, with_type, as_holder, is_exception)
+                    is_dunder, with_type, is_exception)
 from .constants import DEFAULT_SECTION, DEFAULT_ID
-from .exceptions import InternalError, InputError, CheckTypeError, FieldError
+from .exceptions import InputError, CheckTypeError, FieldError
 
 
 __all__ = ['ConfigBase', 'LanguageBase', 'Field', 'Options']

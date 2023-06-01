@@ -52,7 +52,7 @@ def _types(obj_t: mb_holder_t[type], func_name='', param_name='obj_t') -> holder
     if origin := get_origin(obj_t):
         if origin is Union:
             # bug mypy: Union origin is always has __args__
-            return obj_t.__args__                                                                   # type: ignore[attr-defined]
+            return obj_t.__args__                                                                  # type: ignore[attr-defined]
         obj_t = origin
 
     errors = []
@@ -124,7 +124,7 @@ def as_holder(obj: mb_holder_t[_T], default=(), exclude: mb_holder_t[type] = ())
     :arg exclude:   Type or types that must not be detected as holders
     :return:        :arg obj: | (:arg obj:,) | :arg default:"""
     # bug mypy: obj is always returned as holder_t, except default, that can be anything
-    return obj if (state := is_holder(obj, exclude)) else default if state is None else (obj,)      # type: ignore[return-value]
+    return obj if (state := is_holder(obj, exclude)) else default if state is None else (obj,)     # type: ignore[return-value]
 
 
 def as_holder_stated(obj: mb_holder_t[_T], default=(), exclude: mb_holder_t[type] = ()
@@ -136,7 +136,7 @@ def as_holder_stated(obj: mb_holder_t[_T], default=(), exclude: mb_holder_t[type
     :arg exclude:   Type or types that must not be detected as holders
     :return:        bool, :arg obj: | (:arg obj:,) | :arg default:"""
     # bug mypy: obj is always returned as holder_t, except default, that can be anything
-    return (st := is_holder(obj, exclude)), obj if st else default if st is None else (obj,)        # type: ignore[return-value]
+    return (st := is_holder(obj, exclude)), obj if st else default if st is None else (obj,)       # type: ignore[return-value]
 
 
 def as_dict(objs: holder_t, keys: holder_t | Callable = enumerate, strict=False) -> dict:
@@ -298,7 +298,7 @@ def split(items: Iterable, condition: Callable = bool, func: Callable | None = N
         cond_key = True
     elif not cond_key and not cond_value:
         raise fmt_exc(('split()', 'cond_key', 'cond_value'),
-                      must_be=f'at least one True or not filled',
+                      must_be='at least one True or not filled',
                       received=f'{cond_key = }, {cond_value = }')
 
     valid, wrong, errors = {}, {}, []
@@ -447,7 +447,7 @@ def check_items(provided: holder_t, expected: holder_t, item_name='item', item_f
                 extra=True, extra_template=_TEMPL_EXTRA,
                 absent=True, absent_template=_TEMPL_ABSENT, **kwargs) -> holder_t | str:
     """Check for not enough and not exists items provided with customizable output
-    Both checks can be disabled by absent and extra keywords and each can have custom header    
+    Both checks can be disabled by absent and extra keywords and each can have custom header
     :arg provided:          Target objects to check
     :arg expected:          Target objects to check with
     :arg item_name:         Object name for error message
@@ -601,11 +601,11 @@ def check_types(obj: mb_holder_t[object], obj_t: mb_holder_t[type], typecast=Fal
     if maps:        # Value-type pairs by its names if both are mappings
         check_items(named, obj_types, absent=strict, item_name='key', **_CT_IE_MAPS)
         # bug mypy: obj_types is Mapping in that case, so it has get method
-        dataset = [(v, obj_types.get(k), *add_args, k) for k, v in named.items()]                   # type: ignore[attr-defined]
+        dataset = [(v, obj_types.get(k), *add_args, k) for k, v in named.items()]                  # type: ignore[attr-defined]
 
     elif pairs:     # Value-type pairs by lengths if enabled
         # bug mypy: obj_types is Mapping in that case, so it has values method
-        obj_t_vals = obj_types.values() if obj_t_mapping else obj_types                             # type: ignore[attr-defined]
+        obj_t_vals = obj_types.values() if obj_t_mapping else obj_types                            # type: ignore[attr-defined]
         check_lengths(tuple(objects), obj_t_vals, absent=strict, item_name='value', **_CT_IE_PAIRS)
         dataset = [(v, t, *add_args, ki) for (ki, v), t in zip(named.items(), obj_t_vals)]
 
@@ -754,9 +754,9 @@ def set_slots_defaults(field_names: mb_holder_t[str] = (),
 
         new_cls = type(cls.__name__, (), attrs | type_kw)
         # note mypy: skip static checks
-        new_cls.__repr__ = __repr__                                                                 # type: ignore[method-assign, assignment]
-        new_cls.__init__ = __init__                                                                 # type: ignore[misc]
-        new_cls.__eq__ = __eq__                                                                     # type: ignore[method-assign, assignment]
+        new_cls.__repr__ = __repr__                                                 # type: ignore[method-assign, assignment]
+        new_cls.__init__ = __init__                                                 # type: ignore[misc]
+        new_cls.__eq__ = __eq__                                                     # type: ignore[method-assign, assignment]
         return new_cls
 
     # Decorator is not called
@@ -856,7 +856,7 @@ def get_attrs(obj: object | type, skip_parent: int = 0, skip_child: int = 0, *,
                 result[k] = dict(ChainMap(*attrs))                                                  # type: ignore[arg-type]
             else:
                 # bug mypy: Optional? Type[None]?..
-                result[k] = type(attrs[-1])(dict.fromkeys(chain(*attrs[::-1])))                     # type: ignore[arg-type, misc]
+                result[k] = type(attrs[-1])(dict.fromkeys(chain(*attrs[::-1])))                  # type: ignore[arg-type, misc]
     return result
 
 
