@@ -6,7 +6,6 @@ from json import loads
 from typing import Callable
 from tomli import load
 from argparse import ArgumentParser
-from subprocess import run
 from dataclasses import dataclass
 
 import requests
@@ -20,17 +19,27 @@ functions: dict[str, Callable] = {}
 @dataclass
 class LatestRelease:
     title: str
-    type: str
     tag_name: str
     published: str
     version: Version
 
-    def __init__(self, repo: str):  # seems needed '--repo' param to work from workflow...
-        cmd = f"gh release list --limit 1 --repo {repo}"
-        if result := run(cmd.split(), capture_output=True).stdout.decode().strip():
-            result = result.split('\t')
-        self.title, self.type, self.tag_name, self.published = result or ([''] * 4)
+    def __init__(self, repo: str):
+        url = f"https://api.github.com/repos/{repo}/releases/latest"
+        if data := request(url, 'GitHub', f'{repo} latest release'):
+            self.title = data['name']
+            self.tag_name = data['tag_name']
+            self.published = data['published_at']
+        else:
+            self.title, self.tag_name, self.published = ([''] * 3)
         self.version = parse(self.tag_name or 'v0.0.0')
+
+
+def request(url: str, site_name: str, target_name: str):
+    response = requests.get(url)
+    if response.status_code != requests.codes.ok:
+        raise ConnectionError(f'{site_name} was rejected request to {target_name!r} json, '
+                              f'response code: {response.status_code}')
+    return loads(response.text.encode(response.encoding))
 
 
 def parse_cli():
@@ -48,11 +57,8 @@ def _get_name_version() -> tuple[str, Version]:
 
 def _get_pypi_version(package_name: str) -> Version:
     """Get package version from PyPi by name"""
-    response = requests.get(f'https://pypi.python.org/pypi/{package_name}/json')
-    if response.status_code != requests.codes.ok:
-        raise ConnectionError(f'PyPi was rejected request to {package_name!r} json, '
-                              f'response code: {response.status_code}')
-    return parse(loads(response.text.encode(response.encoding))['info']['version'])
+    response = request(f'https://pypi.python.org/pypi/{package_name}/json', 'PyPi', package_name)
+    return parse(response['info']['version'])
 
 
 def get_version() -> str:
