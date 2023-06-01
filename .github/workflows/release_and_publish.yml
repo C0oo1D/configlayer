@@ -63,21 +63,10 @@ jobs:
           pip install build
       - name: Build package
         run: python -m build
-      - name: Display release notes (commit message)
-        run: echo ${{ github.event.head_commit.message }}
       - name: Release on GitHub
-        run: gh release create ${{ needs.checks.outputs.version }} ./dist/* --notes "Initial release"
+        run: gh release create ${{ needs.checks.outputs.version }} ./dist/* --title "configlayer ${{ needs.checks.outputs.version }}" --notes "${{ github.event.head_commit.message }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download ${{ needs.checks.outputs.version }} release
-        run: gh release download ${{ needs.checks.outputs.version }} -D ./dist2/
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Show cwd
-        run: |
-          pwd
-          ls
-          ls */
 
   publish:
     name: Publish package on PyPi (if new version available)
@@ -86,12 +75,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade twine
       - name: Download ${{ needs.checks.outputs.version }} release
         run: gh release download ${{ needs.checks.outputs.version }} -D ./dist/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Show cwd
+      - name: Publish on PyPi
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          pwd
-          ls
-          ls */
+          twine check dist/*
+          twine upload --verbose --skip-existing --repository pypi dist/*
