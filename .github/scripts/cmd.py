@@ -13,6 +13,7 @@ import requests
 from packaging.version import Version, parse
 
 
+repo_owner = 'C0oo1D'
 functions: dict[str, Callable] = {}
 
 
@@ -24,8 +25,8 @@ class LatestRelease:
     published: str
     version: Version
 
-    def __init__(self):
-        cmd = "gh release list --limit 1"
+    def __init__(self, repo: str):  # seems needed '--repo' param to work from workflow...
+        cmd = f"gh release list --limit 1 --repo {repo}"
         if result := run(cmd.split(), capture_output=True).stdout.decode().strip():
             result = result.split('\t')
         self.title, self.type, self.tag_name, self.published = result or ([''] * 4)
@@ -62,8 +63,8 @@ def get_version() -> str:
 
 def check_release() -> tuple[int, str]:
     """Check if release to GitHub is needed -> zero exit code == needed"""
-    local_version = _get_name_version()[1]
-    release = LatestRelease()
+    repository, local_version = _get_name_version()
+    release = LatestRelease(f'{repo_owner}/{repository}')
     needed = local_version > release.version
     return int(not needed), f"{local_version = }, {release}"
 
