@@ -63,15 +63,10 @@ jobs:
           pip install build
       - name: Build package
         run: python -m build
-      - name: Show cwd
-        run: |
-         pwd
-         ls
-         ls */
       - name: Display release notes (commit message)
         run: echo ${{ github.event.head_commit.message }}
       - name: Release on GitHub
-        run: gh release create ./dist/* --title "${{ needs.checks.outputs.version }}" --notes "Initial release"
+        run: gh release create ${{ needs.checks.outputs.version }} ./dist/* --notes "Initial release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Download ${{ needs.checks.outputs.version }} release
