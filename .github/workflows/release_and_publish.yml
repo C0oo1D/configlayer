@@ -9,93 +9,63 @@ on:
       - completed
 
 jobs:
-  checks:
-    name: Check new version for release and publish
+  release_publish:
+    name: Release and publish package if needed
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      release: ${{ steps.release.outcome }}
-      publish: ${{ steps.publish.outcome }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests packaging tomli
+          pip install requests packaging tomli build
+          python -m pip install --upgrade twine
+
+
       - name: Get version
         id: version
-        run: echo "version=$(python .github/scripts/cmd.py get_version)" >> $GITHUB_OUTPUT
+        run: echo "result=$(python .github/scripts/cmd.py get_version)" >> $GITHUB_OUTPUT
+
+
       - name: Check release
         id: release
         continue-on-error: true
         run: python .github/scripts/cmd.py check_release
+
+      - name: Build package for release
+        if: steps.release.outcome == 'success'
+        run: python -m build
+
+      - name: Release on GitHub
+        if: steps.release.outcome == 'success'
+        run: gh release create ${{ steps.version.outputs.result }} ./dist/* --title "configlayer ${{ steps.version.outputs.result }}" --notes "${{ github.event.head_commit.message }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
       - name: Check publish
         id: publish
         continue-on-error: true
         run: python .github/scripts/cmd.py check_publish
-      - name: Show outputs
-        run: |
-          echo "Release ${{ steps.release.outcome }}"
-          echo "Publish ${{ steps.publish.outcome }}"
 
-  release:
-    name: Release package on GitHub (if new version available)
-    needs: checks
-    if: needs.checks.outputs.release == 'success'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-      - name: Build package
-        run: python -m build
-      - name: Release on GitHub
-        run: gh release create ${{ needs.checks.outputs.version }} ./dist/* --title "configlayer ${{ needs.checks.outputs.version }}" --notes "${{ github.event.head_commit.message }}"
+      - name: Download ${{ steps.version.outputs.result }} release
+        if: steps.release.outcome != 'success' && steps.publish.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download ${{ steps.version.outputs.result }} -D ./dist/
 
-  publish:
-    name: Publish package on PyPi (if new version available)
-    if: ${{ '!cancelled()' }} && needs.checks.outputs.publish == 'success'
-    needs: [ checks, release ]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade twine
-      - name: Download ${{ needs.checks.outputs.version }} release
-        run: gh release download ${{ needs.checks.outputs.version }} -D ./dist/
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish on PyPi
+        if: steps.publish.outcome == 'success'
         env:
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
