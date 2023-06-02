@@ -41,6 +41,10 @@ jobs:
         id: publish
         continue-on-error: true
         run: python .github/scripts/cmd.py check_publish
+      - name: Show outputs
+        run: |
+          echo "Release ${{ steps.release.outcome }}"
+          echo "Publish ${{ steps.publish.outcome }}"
 
   release:
     name: Release package on GitHub (if new version available)
@@ -70,8 +74,8 @@ jobs:
 
   publish:
     name: Publish package on PyPi (if new version available)
+    if: ${{ '!cancelled()' }} && needs.checks.outputs.publish == 'success'
     needs: [ checks, release ]
-    if: success() || failure() && needs.checks.outputs.publish == 'success'
     runs-on: ubuntu-latest
 
     steps:
