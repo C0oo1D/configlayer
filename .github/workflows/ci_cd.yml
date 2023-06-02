@@ -1,4 +1,4 @@
-name: Python package tests
+name: CI/CD
 
 on:
   workflow_dispatch:
@@ -16,50 +16,62 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
+
       - name: Display Python version
         run: python3 -c "import sys; print(sys.version)"
+
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -e .
           python3 -m pip install flake8 mypy[reports] pytest pytest-html coverage genbadge[all]
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
       - name: Make reports and temp directories
         run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
+
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=20 --max-line-length=127 --statistics --format=html --htmldir reports/flake8 --tee --output-file temp/flake8stats.txt
+
       - name: Lint with mypy and capture mypy imprecise coverage
         run: |
           mypy . > temp/mypy.log
           mypy configlayer --txt-report temp/mypy --html-report reports/mypy
+
       - name: Test with pytest and capture code coverage
         continue-on-error: true
         run: |
           coverage run -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/Linux_3.10.html
+
       - name: Generate coverage result and report
         run: |
           coverage xml
           coverage html
+
       - name: Generate badges
         run: |
           genbadge flake8 -i temp/flake8stats.txt -o reports/flake8.svg
           python3 .github/scripts/mypy-genbadge.py
           genbadge tests -i temp/pytest.xml -o reports/pytest_Linux_3.10.svg
           genbadge coverage -i temp/coverage.xml -o reports/coverage.svg
+
       - name: Save reports and last README.md file
         uses: actions/upload-artifact@v3
         with:
           name: reports
           path: reports
           retention-days: 1
+
+
 
   tests:
     name: Test using Python ${{ matrix.python-version }} at ${{ matrix.os }}
@@ -76,32 +88,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Display Python version
         run: python3 -c "import sys; print(sys.version)"
+
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -e .
           python3 -m pip install pytest pytest-html genbadge[tests]
+
       - name: Make reports and temp directories
         run: python3 -c "from pathlib import Path; Path('reports').mkdir(); Path('temp').mkdir()"
+
       - name: Test with pytest
         continue-on-error: true
         run: |
           python3 -m pytest -q --tb=native --junitxml=temp/pytest.xml --html=reports/pytest/${{ runner.os }}_${{ matrix.python-version }}.html
+
       - name: Generate badge
         run: |
           genbadge tests -i temp/pytest.xml -o reports/pytest_${{ runner.os }}_${{ matrix.python-version }}.svg
+
       - name: Save Python ${{ matrix.python-version }} at ${{ runner.os }} report
         uses: actions/upload-artifact@v3
         with:
           name: reports
           path: reports
           retention-days: 1
+
+
 
   deploy:
     name: Deploy reports to GitHub Pages
@@ -117,12 +138,79 @@ jobs:
     steps:
       - name: Load artifact from previous jobs
         uses: actions/download-artifact@v3
-      - name: Display current files structure in pages dir
-        run: ls -R
+
       - name: Save as pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: reports
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
+
+
+  release_publish:
+    name: Release and publish package if needed
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests packaging tomli build
+          python -m pip install --upgrade twine
+
+
+      - name: Get version
+        id: version
+        run: echo "result=$(python .github/scripts/cmd.py get_version)" >> $GITHUB_OUTPUT
+
+
+      - name: Check release
+        id: release
+        continue-on-error: true
+        run: python .github/scripts/cmd.py check_release
+
+      - name: Build package for release
+        if: steps.release.outcome == 'success'
+        run: python -m build
+
+      - name: Release on GitHub
+        if: steps.release.outcome == 'success'
+        run: gh release create ${{ steps.version.outputs.result }} ./dist/* --title "configlayer ${{ steps.version.outputs.result }}" --notes "${{ github.event.head_commit.message }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Check publish
+        id: publish
+        continue-on-error: true
+        run: python .github/scripts/cmd.py check_publish
+
+      - name: Download ${{ steps.version.outputs.result }} release
+        if: steps.release.outcome != 'success' && steps.publish.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download ${{ steps.version.outputs.result }} -D ./dist/
+
+      - name: Publish on PyPi
+        if: steps.publish.outcome == 'success'
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine check dist/*
+          twine upload --verbose --skip-existing --repository pypi dist/*

@@ -7,7 +7,7 @@
 [![Flake8](https://C0oo1D.github.io/configlayer/flake8.svg)](https://C0oo1D.github.io/configlayer/flake8/index.html)
 ![mypy](https://C0oo1D.github.io/configlayer/mypy.svg)
 [![mypy-imprecise](https://C0oo1D.github.io/configlayer/mypy-imp.svg)](https://C0oo1D.github.io/configlayer/mypy/index.html)
-![GitHub Build](https://github.com/C0oo1D/configlayer/actions/workflows/tests.yml/badge.svg)
+![CI and CD](https://github.com/C0oo1D/configlayer/actions/workflows/ci_cd.yml/badge.svg)
 
 | Python |                                                                Linux                                                                 |                                                                 Windows                                                                  |                                                                MacOS                                                                 |
 |:------:|:------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------:|
