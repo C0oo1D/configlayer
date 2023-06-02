@@ -89,6 +89,10 @@ def test_load():
     sp, pp = [], []
     [(sp if '_s' in x.name else pp).append(x) for x in TEMP_PATH.parent.glob('test_config_*.ini')]
 
+    # Linux and macOS glob output is unsorted
+    sp.sort()
+    pp.sort()
+
     # Get all available configs
     cfgs = (Config1, Config1Alias, Config2, Config3, Config4)
 
