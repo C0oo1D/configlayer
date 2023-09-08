@@ -26,12 +26,13 @@ class Config1(ConfigBase):
     v_float: float = 3.1415
     v_bytes: bytes = b'Some bytes'
     v_tuple: tuple = (1, 2, 3, None)
-    v_list: list = [-1, 0, 1, 'repeat']
+    v_list: list = [-1, 0, 1, 'repeat €₽']
     v_set: set = {'first'}
     v_dict: dict = {1: 'one', 2: 'two'}
     v_cust1: OwnInt = OwnInt(5)
     v_cust2: str = Field('something')                                                # type: ignore
     v_cust3: int = Field(2, lambda x: f'{x}custom', lambda x: literal_eval(x[:-6]))  # type: ignore
+    v_path: Path = Path('some_path')
     _internal: int = 8
 
 
@@ -42,13 +43,15 @@ exp_strict = {
     'v_float': '3.1415',
     'v_bytes': "b'Some bytes'",
     'v_tuple': '(1, 2, 3, None)',
-    'v_list': "[-1, 0, 1, 'repeat']",
+    'v_list': "[-1, 0, 1, 'repeat €₽']",
     'v_set': "{'first'}",
     'v_dict': "{1: 'one', 2: 'two'}",
     'v_cust1': '5',
     'v_cust2': "'something'",
     'v_cust3': '2custom',
+    'v_path': 'some_path',
     '_internal': '8'}
+
 
 imp_strict = {
     'v_bool': False,
@@ -57,12 +60,13 @@ imp_strict = {
     'v_float': 3.1415,
     'v_bytes': b'Some bytes',
     'v_tuple': (1, 2, 3, None),
-    'v_list': [-1, 0, 1, 'repeat'],
+    'v_list': [-1, 0, 1, 'repeat €₽'],
     'v_set': {'first'},
     'v_dict': {1: 'one', 2: 'two'},
     'v_cust1': OwnInt(5),
     'v_cust2': 'something',
     'v_cust3': 2,
+    'v_path': Path('some_path'),
     '_internal': 8}
 
 

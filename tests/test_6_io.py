@@ -72,14 +72,12 @@ def test_export_field():
     # Correct
     cfg = Config1(io=True).cfg
     export_field = cfg.io.export_field
-    assert export_field(cfn) == "[-1, 0, 1, 'repeat']"
+    assert export_field(cfn) == "[-1, 0, 1, 'repeat €₽']"
     assert export_field(cfn, ccv) == ccr
     assert export_field(cfn, ccv, True) == ccr
     assert export_field(cfn, ccv, False) == ccr
 
-    exp_fields = ['False', "'Some string'", '65535', '3.1415', "b'Some bytes'",  '(1, 2, 3, None)',
-                  "[-1, 0, 1, 'repeat']", "{'first'}", "{1: 'one', 2: 'two'}", '5', "'something'",
-                  '2custom', '8']
+    exp_fields = list(exp_strict.values())
     assert [export_field(k) for k in cfg.get_fields] == exp_fields
     assert [export_field(k, v.default) for k, v in cfg.get_fields.items()] == exp_fields
     assert [export_field(k, v.default, True) for k, v in cfg.get_fields.items()] == exp_fields
@@ -354,20 +352,19 @@ def test_import_field():
 
     # Correct
     cfg = Config1(io=True).cfg
+    split_i = tuple(cfg.get_types.values()).index(OwnInt)
     import_field = cfg.io.import_field
     assert import_field(cfn, ccv) == ccr
     assert import_field(cfn, ccv, True) == ccr
     assert import_field(cfn, ccv, False) == ccr
 
-    exp_f_std = ['False', "'Some string'", '65535', '3.1415', "b'Some bytes'", '(1, 2, 3, None)',
-                 "[-1, 0, 1, 'repeat']", "{'first'}", "{1: 'one', 2: 'two'}"]
-    exp_f_safe = ["'something'", '2custom', '8']
+    exp_values = list(exp_strict.values())
+    exp_f_std, exp_f_safe = exp_values[:split_i], exp_values[split_i + 1:]
 
-    imp_f_std = [False, 'Some string', 65535, 3.1415, b'Some bytes',  (1, 2, 3, None),
-                 [-1, 0, 1, 'repeat'], {'first'}, {1: 'one', 2: 'two'}]
-    imp_f_safe = ['something', 2, 8]
+    imp_values = list(imp_strict.values())
+    imp_f_std, imp_f_safe = imp_values[:split_i], imp_values[split_i + 1:]
 
-    names_safe = ['v_cust2', 'v_cust3', '_internal']
+    names_safe = list(exp_strict)[split_i + 1:]
 
     exp_dict = dict(zip(cfg.get_fields, exp_f_std + ['5'] + exp_f_safe))
     imp_list = imp_f_std + [OwnInt(5)] + imp_f_safe

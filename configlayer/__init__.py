@@ -27,6 +27,7 @@ from .exceptions import InputError, CheckTypeError, FieldError
 
 
 __all__ = ['ConfigBase', 'LanguageBase', 'Field', 'Options']
+__version__ = "0.1.2"
 
 
 class ConfigBase:

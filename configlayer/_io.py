@@ -1,6 +1,7 @@
 """Internal config layer IO support structure"""
 from ast import literal_eval
-from typing import Any, Mapping
+from typing import Any, Mapping, Callable
+from pathlib import Path
 
 from .exceptions import CheckValueError, InputError, FieldError, IOExportError, IOImportError
 from .types import mb_holder_t, fields_t, Field
@@ -17,6 +18,10 @@ _TEMPL_CONFIG = "Cannot {} {!r} config"
 
 # Exceptions holder
 _EXC_LIST = {'import': IOImportError, 'export': IOExportError}
+
+# Hooks
+_EXPORT_HOOKS: dict[type, Callable] = {Path: str}
+_IMPORT_HOOKS: dict[type, Callable] = {Path: Path}
 
 
 class IO(Locker):
@@ -60,8 +65,9 @@ class IO(Locker):
         return _EXC_LIST[op](f"{_TEMPL_CONFIG.format(op, self._cfg.name)}{section}. {exc}")
 
     @staticmethod
-    def _export_field(field: Field, value: str, typecast: bool) -> str:
-        return check_type(field.export_func(value), str, typecast, 'field', False)
+    def _export_field(field: Field, value, typecast: bool) -> str:
+        hook = _EXPORT_HOOKS.get(field.type, field.export_func)
+        return check_type(hook(value), str, typecast, 'field', False)
 
     def export_field(self, name: str, value: Any = None, typecast=True) -> str:
         """Export single field to raw str type
@@ -208,7 +214,8 @@ class IO(Locker):
 
     @staticmethod
     def _import_field(field: Field, raw_value: str, typecast: bool) -> Any:
-        return check_type(field.import_func(raw_value), field.type, typecast, 'field', False)
+        hook = _IMPORT_HOOKS.get(field.type, field.import_func)
+        return check_type(hook(raw_value), field.type, typecast, 'field', False)
 
     def import_field(self, name: str, raw_value: str, typecast=True) -> Any:
         """Import single field to field type
