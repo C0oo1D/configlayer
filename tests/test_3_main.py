@@ -73,7 +73,7 @@ def test_config_repr_str():
                   "v_cust1: OwnInt = 5",
                   "v_cust2: str = 'something'",
                   "v_cust3: int = 2",
-                  "v_path: Path = WindowsPath('some_path')",
+                  f"v_path: Path = {Path('some_path')!r}",
                   "_internal: int = 8")
         return '\n\t'.join((f'{name!r} config:', *fields, *add_fields))
 
