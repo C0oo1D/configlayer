@@ -5,7 +5,7 @@ from configlayer.constants import DEFAULT_SECTION
 from configlayer.exceptions import InputError, ProfilesError
 
 from _utilities import raises
-from _data import Config1, Config1Alias, Config2, Config3, Config4, Lang1
+from _data import Config1, Config1Alias, Config2, Config3, Config4, Lang1, exp_strict
 
 
 def test_init():
@@ -142,6 +142,8 @@ def test_set():
             return exc
         return ProfilesError(f"Cannot set '{p_name}' profile to 'Config1' config"), exc
 
+    p_cnt = len(exp_strict)
+
     cfg = Config1(profiles=True).cfg
     profiles = cfg.profiles
     def_d = cfg.get_defaults
@@ -174,17 +176,17 @@ def test_set():
                   "\tv_set: 7 (int) must be set type\n"
                   "\tv_dict: 8 (int) must be dict type\n"
                   "\tv_cust1: 9 (int) must be OwnInt type\n"
-                  "\tv_cust2: 10 (int) must be str type")
-    exc6 = ie(msg="Absent fields: v_float, v_bytes, v_tuple, v_list, v_set, v_dict, v_cust1, "
-                  f"v_cust2, v_cust3, _internal. Must be equal to expected ({exp}), "
-                  "but received: v_bool, v_str, v_int")
-    exc7 = ie(msg="Extra value: None. Must be 13 values long, but received 14")
+                  "\tv_cust2: 10 (int) must be str type\n"
+                  "\tv_path: 12 (int) must be Path type")
+    exc6 = ie(msg=f"Absent fields: {', '.join(tuple(exp_strict)[3:])}. Must be equal to expected "
+                  f"({exp}), but received: v_bool, v_str, v_int")
+    exc7 = ie(msg=f"Extra value: None. Must be {p_cnt} values long, but received {p_cnt + 1}")
     exc8 = ie(msg=f"Extra field: v_cust4. Must be not more than expected ({exp}), "
                   "but received: v_cust4")
 
     empty_v = ((), (None,), ((),), ({},))
     err_p_v = (((1, 2, 3),), ({'v_int': '6'},))
-    err_f_v = ((tuple(range(13)),), (dict(zip(def_d, range(13))),))
+    err_f_v = ((tuple(range(p_cnt)),), (dict(zip(def_d, range(p_cnt))),))
     error_v = (*err_p_v, *err_f_v)
     extra_v = (((*def_t, None),), ({'v_cust4': None},))
     valid_v = (((True,),), ({'v_str': 'good'},))

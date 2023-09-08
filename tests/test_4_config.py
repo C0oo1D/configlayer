@@ -184,7 +184,10 @@ def test_get_set():
 
         assert {k: v.default for k, v in cfg.get_fields.items()} == default_data | default
         assert [k for k, v in cfg.get_changed.items() if v] == changed
-        assert cfg.get_types == {k: type(v) for k, v in cfg.get_data.items()}
+
+        for (k, t), v in zip(cfg.get_types.items(), cfg.get_data.values(), strict=True):
+            if t != (tv := type(v)):
+                assert issubclass(tv, t)
 
     data_s.v_int = data_p.v_int = 255
     cfg_s.get_fields['v_int'].default = cfg_p.get_fields['v_int'].default = 32767

@@ -76,7 +76,7 @@ def test_save():
         else:
             result.append("v_bool = True")
 
-        assert TEMP_PATH.read_text().rstrip() == '\n'.join(result)
+        assert TEMP_PATH.read_text(encoding='utf-8').rstrip() == '\n'.join(result)
 
         del data
         collect()

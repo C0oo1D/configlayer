@@ -6,6 +6,7 @@ from _data import ConfigBase, CfgInConfig, DunderInConfig, EmptyConfig, NoType, 
 from _data import LanguageBase, ProvidedType, Lang1
 from _data import Config1, Config1Alias, Config2, Config3, Config4, OwnInt
 from _data import WrongType1, WrongType2, WrongType3, WrongType4, WrongTypeLang
+from _data import exp_strict, Path
 
 
 def raises_init_lang(exceptions: mb_holder_t[Exception], func, *args, **kwargs):
@@ -66,12 +67,13 @@ def test_config_repr_str():
                   "v_float: float = 3.1415",
                   "v_bytes: bytes = b'Some bytes'",
                   "v_tuple: tuple = (1, 2, 3, None)",
-                  "v_list: list = [-1, 0, 1, 'repeat']",
+                  "v_list: list = [-1, 0, 1, 'repeat €₽']",
                   "v_set: set = {'first'}",
                   "v_dict: dict = {1: 'one', 2: 'two'}",
                   "v_cust1: OwnInt = 5",
                   "v_cust2: str = 'something'",
                   "v_cust3: int = 2",
+                  "v_path: Path = WindowsPath('some_path')",
                   "_internal: int = 8")
         return '\n\t'.join((f'{name!r} config:', *fields, *add_fields))
 
@@ -87,21 +89,20 @@ def test_config_repr_str():
 
 def test_config_data():
     data = Config1()
-    temp = ('v_bool', 'v_str', 'v_int', 'v_float', 'v_bytes', 'v_tuple', 'v_list', 'v_set',
-            'v_dict', 'v_cust1', 'v_cust2', 'v_cust3', '_internal')
-    assert tuple(data.cfg.get_fields) == temp
+    assert tuple(data.cfg.get_fields) == tuple(exp_strict)
     assert data.v_bool is False
     assert data.v_str == 'Some string'
     assert data.v_int == 65535
     assert data.v_float == 3.1415
     assert data.v_bytes == b'Some bytes'
     assert data.v_tuple == (1, 2, 3, None)
-    assert data.v_list == [-1, 0, 1, 'repeat']
+    assert data.v_list == [-1, 0, 1, 'repeat €₽']
     assert data.v_set == {'first'}
     assert data.v_dict == {1: 'one', 2: 'two'}
     assert data.v_cust1 == OwnInt(5)
     assert data.v_cust2 == 'something'
     assert data.v_cust3 == 2
+    assert data.v_path == Path('some_path')
     assert data._internal == 8
 
 
@@ -117,8 +118,7 @@ def test_config_field():
     data = Config1()
 
     # Set field
-    reason = ("it is not field. Available: v_bool, v_str, v_int, v_float, v_bytes, "
-              "v_tuple, v_list, v_set, v_dict, v_cust1, v_cust2, v_cust3, _internal")
+    reason = f"it is not field. Available: {', '.join(exp_strict)}"
     raises(FieldError('Set', 'Config1', 'cfg', 1, reason=reason), setattr, data, 'cfg', 1)
     raises(FieldError('Set', 'Config1', 'x', 2, reason=reason), setattr, data, 'x', 2)
 

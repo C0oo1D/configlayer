@@ -74,7 +74,7 @@ class File(Locker):
         config = self._get_config()
         config.read_dict(self._cfg.io.export_config(sections, strict_defaults=strict_defaults,
                                                     strict_data=strict_data, typecast=True))
-        with self.path.open('w') as file:
+        with self.path.open('w', encoding='utf-8') as file:
             config.write(file)
 
     @_exc('Load from')
@@ -89,7 +89,7 @@ class File(Locker):
 
         # Raw check for provided real default section (not used due to internal section impact)
         error = False
-        with self.path.open() as file:
+        with self.path.open('r', encoding='utf-8') as file:
             config.read_file(file)
             file.seek(0)
             for line in file.readlines():
